@@ -1,0 +1,4 @@
+const express=require('express'); const db=require('../../db'); const r=express.Router();
+r.get('/',(_,res)=>res.json(db.appointments));
+r.post('/',(req,res)=>{const {paciente,especialidade,profissional,data,hora}=req.body;if(!paciente||!data||!hora)return res.status(400).json({erro:'Dados obrigatórios não preenchidos'});const a={id:Date.now(),paciente,especialidade,profissional,data,hora};db.appointments.push(a);db.notifications.push({id:Date.now()+1,mensagem:`Consulta de ${a.paciente} confirmada para ${a.data} às ${a.hora}.`});res.status(201).json(a)});
+r.delete('/:id',(req,res)=>{const a=db.appointments.find(x=>x.id==req.params.id);db.appointments=db.appointments.filter(x=>x.id!=req.params.id);if(a)db.notifications.push({id:Date.now(),mensagem:`Agendamento de ${a.paciente} foi cancelado.`});res.status(204).end()}); module.exports=r;
